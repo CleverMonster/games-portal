@@ -1,0 +1,10 @@
+[
+  {
+    "slug": "spinning-cube",
+    "title": "Spinning Cube",
+    "description": "Sample WebGL game. Replace or delete me!",
+    "thumbnail": "",
+    "tags": ["demo"],
+    "aspect": "16/9"
+  }
+]

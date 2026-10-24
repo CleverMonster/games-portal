@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="bar"><a class="btn" href="index.html">← All games</a><h2 id="title"></h2><button id="fs">Fullscreen</button></div>
+<div class="stage"><div class="frame" id="frame"></div><p class="desc" id="desc"></p></div>
+<script>
+const slug=new URLSearchParams(location.search).get('g');
+fetch('games.json').then(r=>r.json()).then(list=>{
+  const g=list.find(x=>x.slug===slug);
+  if(!g){document.getElementById('title').textContent='Game not found';return}
+  document.title=g.title;
+  document.getElementById('title').textContent=g.title;
+  document.getElementById('desc').textContent=g.description||'';
+  const f=document.getElementById('frame');
+  if(g.aspect)f.style.setProperty('--aspect',g.aspect);
+  const i=document.createElement('iframe');
+  i.src='games/'+g.slug+'/'+(g.entry||'index.html');
+  i.allow='fullscreen; autoplay; gamepad; pointer-lock; accelerometer; gyroscope';
+  i.allowFullscreen=true;
+  f.appendChild(i);
+  document.getElementById('fs').onclick=()=>f.requestFullscreen&&f.requestFullscreen();
+});
+</script></body></html>

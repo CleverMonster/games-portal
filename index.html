@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My WebGL Games</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><h1>My WebGL Games</h1><p>Play right in your browser.</p>
+<input id="search" type="search" placeholder="Search games…"></header>
+<main><div id="grid" class="grid"></div></main>
+<script>
+const grid=document.getElementById('grid'),search=document.getElementById('search');
+let games=[];
+const hue=s=>[...s].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%360;
+function render(){
+  const q=search.value.toLowerCase();
+  const list=games.filter(g=>(g.title+' '+(g.description||'')+' '+(g.tags||[]).join(' ')).toLowerCase().includes(q));
+  grid.innerHTML='';
+  if(!list.length){grid.innerHTML='<p class="empty">No games found.</p>';return}
+  for(const g of list){
+    const a=document.createElement('a');a.className='card';a.href='game.html?g='+encodeURIComponent(g.slug);
+    const h=hue(g.slug);
+    const t=document.createElement('div');t.className='thumb';
+    t.style.setProperty('--h1',`hsl(${h} 60% 35%)`);t.style.setProperty('--h2',`hsl(${(h+50)%360} 60% 20%)`);
+    if(g.thumbnail){const i=document.createElement('img');i.src=g.thumbnail;i.alt='';t.appendChild(i)}else t.textContent=g.title[0];
+    const info=document.createElement('div');info.className='info';
+    const h3=document.createElement('h3');h3.textContent=g.title;
+    const p=document.createElement('p');p.textContent=g.description||'';
+    info.append(h3,p);
+    for(const tag of g.tags||[]){const s=document.createElement('span');s.className='tag';s.textContent=tag;info.appendChild(s)}
+    a.append(t,info);grid.appendChild(a);
+  }
+}
+fetch('games.json').then(r=>r.json()).then(d=>{games=d;render()}).catch(()=>{grid.innerHTML='<p class="empty">Could not load games.json (open via a web server, not file://).</p>'});
+search.addEventListener('input',render);
+</script></body></html>
