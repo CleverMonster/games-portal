@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Game</title></head><body><script src="../_shared/gl2d.js"></script><script>
+// LEAP — hold to jump higher, cross the gaps between cliffs. Neon dusk.
+const g=GL2D({fg:'#ffffff'});
+let state='idle',p,ledges=[],sp,dist,lock=0,best=0,hold=false,buf=0;
+const G=()=>g.H*3.2,V=()=>g.H*1.15;
+function addLedge(){const L=ledges[ledges.length-1];
+  let y=g.H*(.55+Math.random()*.3);const up=y<L.y;y=Math.max(y,L.y-g.H*.12);
+  const gap=sp*(.25+Math.random()*.35)*(up?.7:1);
+  ledges.push({x:L.x+L.w+gap,w:sp*(.8+Math.random()*1.4),y})}
+function reset(){state='idle';sp=g.H*.75;dist=0;buf=0;p={y:g.H*.7,vy:0,ground:true};
+  ledges=[{x:-g.W,w:g.W*1.6,y:g.H*.7}];g.score('');
+  g.msg('LEAP<br><small>hold to jump higher</small><br><br>TAP TO START')}
+function die(){state='over';lock=performance.now()+500;const m=Math.floor(dist/g.H*10);best=Math.max(best,m);
+  g.msg('GAME OVER<br>'+m+'m · best '+best+'m<br><br>TAP TO RETRY')}
+g.onDown=()=>{hold=true;
+  if(state==='over'){if(performance.now()>=lock)reset();return}
+  if(state==='idle'){state='run';g.msg(null);return}
+  buf=.12};
+g.onUp=()=>{hold=false;if(p&&p.vy<0)p.vy*=.45};
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();if(!e.repeat)g.onDown()}});
+addEventListener('keyup',e=>{if(e.code==='Space'||e.code==='ArrowUp')g.onUp()});
+g.loop(dt=>{
+  if(!p)reset();
+  const s=g.H*.05,px=g.W*.2;
+  if(state==='run'){
+    sp=Math.min(g.H*1.6,sp+g.H*.02*dt);const dx=sp*dt;dist+=dx;
+    for(const L of ledges)L.x-=dx;
+    ledges=ledges.filter(L=>L.x+L.w>-g.W*.2);
+    while(ledges[ledges.length-1].x<g.W*1.5)addLedge();
+    buf-=dt;if(buf>0&&p.ground){p.vy=-V();p.ground=false;buf=0;if(!hold)p.vy*=.45}
+    p.vy+=G()*dt;let ny=p.y+p.vy*dt;p.ground=false;
+    for(const L of ledges)if(px+s/2>L.x&&px-s/2<L.x+L.w){
+      if(p.vy>=0&&p.y<=L.y+1&&ny>=L.y){ny=L.y;p.vy=0;p.ground=true}
+      else if(ny>L.y+2)die()}
+    p.y=ny;if(p.y-s>g.H)die();
+    g.score(Math.floor(dist/g.H*10)+'m');
+  }
+  g.clear('#2b1b4a');
+  g.circle(g.W*.72,g.H*.42,g.H*.22,'#ff7a59');
+  const hw=g.H*.4,off=dist*.2,k=Math.floor(off/hw);
+  for(let j=0;j<g.W/hw+2;j++){const i=k+j,hh=g.H*(.18+.08*Math.sin(i*1.7)+.05*Math.sin(i*3.1));
+    g.rect(i*hw-off,g.H-hh,hw+1,hh,'#4a2a6a')}
+  for(const L of ledges){g.rect(L.x,L.y,L.w,g.H-L.y,'#ff3fa4');g.rect(L.x,L.y,L.w,s*.25,'#ffd1ec')}
+  g.rect(px-s/2,p.y-s,s,s,'#3cf2ff');
+});
+</script></body></html>
