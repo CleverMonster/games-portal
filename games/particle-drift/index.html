@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><body style="margin:0;overflow:hidden;background:#000"><canvas id="c" style="width:100vw;height:100vh;display:block"></canvas>
+<script>
+const c=document.getElementById('c'),gl=c.getContext('webgl');
+const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o));return o};
+const p=gl.createProgram();
+gl.attachShader(p,sh(gl.VERTEX_SHADER,`attribute vec3 a;uniform float t;uniform vec2 m;uniform float asp;varying float v;
+void main(){vec2 q=a.xy;float s=a.z;
+ q+=vec2(sin(t*.3*s+q.y*3.),cos(t*.25*s+q.x*3.))*.12;
+ vec2 d=q-m;float k=.08/(dot(d,d)+.03);q+=normalize(d+1e-4)*k*.15;
+ v=.3+.7*s;gl_Position=vec4(q.x/asp,q.y,0.,1.);gl_PointSize=1.5+s*2.;}`));
+gl.attachShader(p,sh(gl.FRAGMENT_SHADER,`precision mediump float;varying float v;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;gl_FragColor=vec4(.4*v,.8*v,1.*v,(1.-d*2.));}`));
+gl.linkProgram(p);gl.useProgram(p);
+const N=30000,d=new Float32Array(N*3);for(let i=0;i<N;i++){d[i*3]=Math.random()*3-1.5;d[i*3+1]=Math.random()*2-1;d[i*3+2]=Math.random()}
+gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,3,gl.FLOAT,false,0,0);
+gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+const U=n=>gl.getUniformLocation(p,n);let mx=9,my=9;
+addEventListener('pointermove',e=>{const a=innerWidth/innerHeight;mx=(e.clientX/innerWidth*2-1)*a;my=1-e.clientY/innerHeight*2});
+(function f(t){const w=c.clientWidth,h=c.clientHeight;if(c.width!==w||c.height!==h){c.width=w;c.height=h}
+ gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);
+ gl.uniform1f(U('t'),t*.001);gl.uniform2f(U('m'),mx,my);gl.uniform1f(U('asp'),w/h);
+ gl.drawArrays(gl.POINTS,0,N);requestAnimationFrame(f)})(0);
+</script></body></html>

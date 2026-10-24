@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><body style="margin:0;overflow:hidden;background:#fff"><canvas id="c" style="width:100vw;height:100vh;display:block;cursor:none"></canvas>
+<div id="s" style="position:fixed;top:16px;left:20px;font:700 20px monospace;color:#000;user-select:none">0</div>
+<div id="msg" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:700 22px monospace;color:#000;pointer-events:none;text-align:center">CLICK TO START<br>MOVE TO DODGE</div>
+<script>
+const c=document.getElementById('c'),gl=c.getContext('webgl');
+const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o};
+const p=gl.createProgram();
+gl.attachShader(p,sh(gl.VERTEX_SHADER,`attribute vec2 a;uniform vec2 pos,size,res;void main(){vec2 w=pos+a*size;gl_Position=vec4(w.x/res.x*2.-1.,1.-w.y/res.y*2.,0.,1.);}`));
+gl.attachShader(p,sh(gl.FRAGMENT_SHADER,`precision mediump float;uniform vec3 col;void main(){gl_FragColor=vec4(col,1.);}`));
+gl.linkProgram(p);gl.useProgram(p);
+gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-.5,-.5,.5,-.5,-.5,.5,.5,.5]),gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+const U=n=>gl.getUniformLocation(p,n);
+const rect=(x,y,w,h,col)=>{gl.uniform2f(U('pos'),x,y);gl.uniform2f(U('size'),w,h);gl.uniform3fv(U('col'),col);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)};
+let W,H,mx=0,my=0,px=0,py=0,en=[],run=false,score=0,last=0,spawn=0;
+addEventListener('pointermove',e=>{mx=e.clientX*devicePixelRatio;my=e.clientY*devicePixelRatio});
+addEventListener('pointerdown',()=>{if(!run){run=true;en=[];score=0;spawn=0;document.getElementById('msg').style.display='none'}});
+const S=()=>Math.min(W,H)*.03;
+(function f(t){const dt=Math.min((t-last)/1000,.05);last=t;
+ const w=c.clientWidth*devicePixelRatio,h=c.clientHeight*devicePixelRatio;if(c.width!==w||c.height!==h){c.width=w;c.height=h}
+ W=w;H=h;gl.viewport(0,0,w,h);gl.uniform2f(U('res'),w,h);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT);
+ px+=(mx-px)*Math.min(1,dt*18);py+=(my-py)*Math.min(1,dt*18);
+ if(run){score+=dt;spawn-=dt;
+  if(spawn<=0){spawn=Math.max(.12,.6-score*.012);const s=S()*(1+Math.random()*2.5),side=Math.random()*4|0;
+   const sp=(120+score*6)*devicePixelRatio*(.6+Math.random());
+   const e={s};if(side<2){e.x=Math.random()*W;e.y=side?H+s:-s;e.vx=0;e.vy=side?-sp:sp}else{e.y=Math.random()*H;e.x=side==2?-s:W+s;e.vy=0;e.vx=side==2?sp:-sp}en.push(e)}
+  for(const e of en){e.x+=e.vx*dt;e.y+=e.vy*dt;
+   if(Math.abs(e.x-px)<(e.s+S())/2&&Math.abs(e.y-py)<(e.s+S())/2){run=false;const m=document.getElementById('msg');m.style.display='flex';m.innerHTML='GAME OVER · '+score.toFixed(1)+'s<br>CLICK TO RETRY'}}
+  en=en.filter(e=>e.x>-200&&e.x<W+200&&e.y>-200&&e.y<H+200);
+  document.getElementById('s').textContent=score.toFixed(1)}
+ for(const e of en)rect(e.x,e.y,e.s,e.s,[0,0,0]);
+ rect(px,py,S(),S(),[1,.15,.1]);
+ requestAnimationFrame(f)})(0);
+</script></body></html>

@@ -4,7 +4,39 @@
     "title": "Spinning Cube",
     "description": "Sample WebGL game. Replace or delete me!",
     "thumbnail": "",
-    "tags": ["demo"],
+    "tags": [
+      "demo"
+    ],
+    "aspect": "16/9"
+  },
+  {
+    "slug": "orbit",
+    "title": "Orbit",
+    "description": "Raymarched soft blobs in pastel. Move your mouse to pull them.",
+    "tags": [
+      "shader",
+      "relaxing"
+    ],
+    "aspect": "16/9"
+  },
+  {
+    "slug": "particle-drift",
+    "title": "Particle Drift",
+    "description": "30,000 glowing particles that flow and scatter around your cursor.",
+    "tags": [
+      "particles",
+      "dark"
+    ],
+    "aspect": "16/9"
+  },
+  {
+    "slug": "dodge",
+    "title": "Dodge",
+    "description": "Black and white minimalist survival. Avoid the squares.",
+    "tags": [
+      "game",
+      "2D"
+    ],
     "aspect": "16/9"
   }
 ]
