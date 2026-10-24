@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Game</title></head><body><script src="../_shared/gl2d.js"></script><script>
+// POP — tap the shrinking circles before they vanish. Neon on dark.
+const g=GL2D({fg:'#ffffff'});
+const PAL=['#ff3cac','#2be4ff','#b6ff3c','#ffb82b','#a974ff'];
+let state='idle',ts=[],fx=[],score=0,lives=3,spawn=0,lock=0,best=0,time=0;
+const hud=()=>g.score(score+'   '+'♥'.repeat(lives));
+g.msg('POP<br><small>tap the circles</small><br><br>TAP TO START');
+g.onDown=()=>{
+  if(state==='over'){if(performance.now()<lock)return;state='idle'}
+  if(state==='idle'){state='run';ts=[];fx=[];score=0;lives=3;spawn=.2;time=0;hud();g.msg(null);return}
+  const {x,y}=g.ptr;let hit=-1,best_=1e9;
+  ts.forEach((t,i)=>{const r=t.r0*(1-t.t/t.life),d=Math.hypot(t.x-x,t.y-y);
+    if(d<=Math.max(r,14)+10&&d<best_){best_=d;hit=i}});
+  if(hit>=0){const t=ts.splice(hit,1)[0];score++;fx.push({x:t.x,y:t.y,r:t.r0*(1-t.t/t.life),c:t.c,t:0});hud()}};
+g.loop(dt=>{
+  g.clear('#0d0b1e');const u=Math.min(g.W,g.H)/360;
+  if(state==='run'){
+    time+=dt;spawn-=dt;
+    if(spawn<=0){spawn=Math.max(.35,.9-time*.012);
+      const r0=(34+Math.random()*22)*u,life=Math.max(.7,1.7-time*.015);
+      ts.push({x:r0+Math.random()*(g.W-2*r0),y:r0+50*u+Math.random()*(g.H-2*r0-50*u),r0,t:0,life,c:PAL[Math.random()*PAL.length|0]})}
+    for(const t of ts)t.t+=dt;
+    const gone=ts.filter(t=>t.t>=t.life);
+    if(gone.length){ts=ts.filter(t=>t.t<t.life);lives-=gone.length;hud();
+      if(lives<=0){state='over';lock=performance.now()+500;best=Math.max(best,score);
+        g.msg('GAME OVER<br>'+score+' · best '+best+'<br><br>TAP TO RETRY')}}
+  }
+  for(const t of ts){const r=t.r0*(1-t.t/t.life);g.circle(t.x,t.y,t.r0,t.c,.12);g.circle(t.x,t.y,Math.max(r,1),t.c,.95)}
+  fx=fx.filter(f=>(f.t+=dt)<.3);
+  for(const f of fx){const k=f.t/.3;g.circle(f.x,f.y,f.r*(1+k*.8),f.c,.6*(1-k))}
+});
+</script></body></html>

@@ -1,42 +1,6 @@
 [
-  {
-    "slug": "spinning-cube",
-    "title": "Spinning Cube",
-    "description": "Sample WebGL game. Replace or delete me!",
-    "thumbnail": "",
-    "tags": [
-      "demo"
-    ],
-    "aspect": "16/9"
-  },
-  {
-    "slug": "orbit",
-    "title": "Orbit",
-    "description": "Raymarched soft blobs in pastel. Move your mouse to pull them.",
-    "tags": [
-      "shader",
-      "relaxing"
-    ],
-    "aspect": "16/9"
-  },
-  {
-    "slug": "particle-drift",
-    "title": "Particle Drift",
-    "description": "30,000 glowing particles that flow and scatter around your cursor.",
-    "tags": [
-      "particles",
-      "dark"
-    ],
-    "aspect": "16/9"
-  },
-  {
-    "slug": "dodge",
-    "title": "Dodge",
-    "description": "Black and white minimalist survival. Avoid the squares.",
-    "tags": [
-      "game",
-      "2D"
-    ],
-    "aspect": "16/9"
-  }
+  {"slug":"dodge","title":"Dodge","description":"Drag to move. Avoid the black squares. Mono.","tags":["2D","touch"],"aspect":"3/4"},
+  {"slug":"flap","title":"Flap","description":"Tap to flap through the gaps. Flat colours on navy.","tags":["2D","touch"],"aspect":"3/4"},
+  {"slug":"breakout","title":"Breakout","description":"Drag the paddle, tap to launch. Soft pastels.","tags":["2D","touch"],"aspect":"3/4"},
+  {"slug":"pop","title":"Pop","description":"Tap the shrinking circles before they vanish. Neon.","tags":["2D","touch"],"aspect":"3/4"}
 ]

@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Game</title></head><body><script src="../_shared/gl2d.js"></script><script>
+// FLAP — tap to flap through the gaps. Dark navy + flat colours.
+const g=GL2D({fg:'#ffffff'});
+let state='idle',bird,pipes=[],spawn=0,score=0,lock=0,best=0,t=0;
+const sc=()=>g.H/700;
+function reset(){state='idle';bird={y:g.H/2,vy:0};pipes=[];spawn=.6;score=0;g.score('');
+  g.msg('FLAP<br><small>tap to flap</small><br><br>TAP TO START')}
+function die(){state='over';lock=performance.now()+500;best=Math.max(best,score);
+  g.msg('GAME OVER<br>'+score+' · best '+best+'<br><br>TAP TO RETRY')}
+g.onDown=()=>{
+  if(state==='over'){if(performance.now()>=lock)reset();return}
+  if(state==='idle'){state='run';g.msg(null)}
+  bird.vy=-g.H*.58};
+g.loop(dt=>{
+  if(!bird)reset();
+  const s=sc(),bx=g.W*.25,r=13*s,gap=Math.max(170*s,g.H*.27),pw=62*s;t+=dt;
+  g.clear('#1b1f3b');
+  if(state==='idle'){bird.y=g.H/2+Math.sin(t*4)*10*s}
+  if(state==='run'){
+    bird.vy+=g.H*2.1*dt;bird.y+=bird.vy*dt;
+    spawn-=dt;
+    if(spawn<=0){spawn=1.45;const m=gap/2+g.H*.12;pipes.push({x:g.W+pw,gy:m+Math.random()*(g.H-2*m),done:false})}
+    for(const p of pipes){p.x-=g.W*.4*Math.max(.7,g.H/g.W>1?1:.8)*dt*(g.H>g.W?0.8:1.1);
+      if(!p.done&&p.x+pw<bx-r){p.done=true;score++;g.score(score)}
+      if(bx+r>p.x&&bx-r<p.x+pw&&(bird.y-r<p.gy-gap/2||bird.y+r>p.gy+gap/2))die()}
+    pipes=pipes.filter(p=>p.x>-pw*2);
+    if(bird.y>g.H-r||bird.y<r)die();
+  }
+  for(const p of pipes){g.rect(p.x,0,pw,p.gy-gap/2,'#3ddc97');g.rect(p.x,p.gy+gap/2,pw,g.H,'#3ddc97')}
+  g.circle(bx,bird.y,r,'#ffd23f');
+});
+</script></body></html>

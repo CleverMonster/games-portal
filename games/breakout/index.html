@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Game</title></head><body><script src="../_shared/gl2d.js"></script><script>
+// BREAKOUT — drag to move the paddle, tap to launch. Soft pastels.
+const g=GL2D({fg:'#3a3550'});
+const COLS=8,ROWS=5,COLORS=['#ff8fa3','#ffb38a','#ffe08a','#9be3a8','#8ec5ff'];
+let state='idle',bricks,px=0,ball,lives=3,score=0,lock=0;
+const U=()=>Math.min(g.W,g.H*.75)/360;
+function newGame(){bricks=Array.from({length:COLS*ROWS},()=>true);lives=3;score=0;serve();state='serve'}
+function serve(){state='serve';ball={x:px,y:0,vx:0,vy:0};hud()}
+function hud(){g.score(score+'   '+'♥'.repeat(lives))}
+g.msg('BREAKOUT<br><small>drag paddle · tap to launch</small><br><br>TAP TO START');
+g.onDown=()=>{
+  if(state==='idle'||(state==='over'&&performance.now()>=lock)){newGame();g.msg(null);return}
+  if(state==='serve'){const sp=g.H*.62;const a=(Math.random()*.8-.4);ball.vx=Math.sin(a)*sp;ball.vy=-Math.cos(a)*sp;state='run'}};
+g.loop(dt=>{
+  g.clear('#fbf6ef');const u=U(),W=g.W,H=g.H;
+  const pw=Math.max(W*.22,70*u),ph=12*u,py=H-56*u,r=7*u;
+  const m=14*u,gp=5*u,top=64*u,bw=(W-2*m-(COLS-1)*gp)/COLS,bh=18*u;
+  if(state!=='idle'){px=Math.min(W-pw/2,Math.max(pw/2,g.ptr.x||W/2))}else px=W/2;
+  if(state==='serve'){ball.x=px;ball.y=py-ph/2-r-1}
+  if(state==='run'){
+    const sp=Math.hypot(ball.vx,ball.vy);
+    ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+    if(ball.x<r){ball.x=r;ball.vx=Math.abs(ball.vx)}
+    if(ball.x>W-r){ball.x=W-r;ball.vx=-Math.abs(ball.vx)}
+    if(ball.y<r){ball.y=r;ball.vy=Math.abs(ball.vy)}
+    if(ball.vy>0&&ball.y+r>py-ph/2&&ball.y-r<py+ph/2&&Math.abs(ball.x-px)<pw/2+r){
+      const k=Math.max(-1,Math.min(1,(ball.x-px)/(pw/2)));const a=k*1.0;
+      const s2=Math.min(sp*1.01,H*1.0);ball.vx=Math.sin(a)*s2;ball.vy=-Math.cos(a)*s2;ball.y=py-ph/2-r}
+    for(let i=0;i<bricks.length;i++){if(!bricks[i])continue;
+      const bx=m+(i%COLS)*(bw+gp),by=top+Math.floor(i/COLS)*(bh+gp);
+      const cx=Math.max(bx,Math.min(ball.x,bx+bw)),cy=Math.max(by,Math.min(ball.y,by+bh));
+      if((ball.x-cx)**2+(ball.y-cy)**2<r*r){bricks[i]=false;score+=10;
+        if(Math.abs(ball.x-(bx+bw/2))/bw>Math.abs(ball.y-(by+bh/2))/bh)ball.vx*=-1;else ball.vy*=-1;
+        hud();break}}
+    if(!bricks.some(Boolean)){state='over';lock=performance.now()+500;g.msg('YOU WIN<br>'+score+'<br><br>TAP TO PLAY AGAIN')}
+    else if(ball.y>H+r){lives--;hud();if(lives<=0){state='over';lock=performance.now()+500;g.msg('GAME OVER<br>'+score+'<br><br>TAP TO RETRY')}else serve()}
+  }
+  if(bricks)bricks.forEach((a,i)=>{if(a)g.rect(m+(i%COLS)*(bw+gp),top+Math.floor(i/COLS)*(bh+gp),bw,bh,COLORS[Math.floor(i/COLS)])});
+  g.rect(px-pw/2,py-ph/2,pw,ph,'#3a3550');
+  if(state!=='idle')g.circle(ball.x,ball.y,r,'#3a3550');
+});
+</script></body></html>

@@ -22,6 +22,7 @@ main{max-width:1100px;margin:0 auto;padding:10px 20px 60px}
 button,.btn{background:var(--card);color:var(--fg);border:1px solid #2a2f3b;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.95rem}
 button:hover,.btn:hover{border-color:var(--accent)}
 .stage{max-width:1100px;margin:0 auto;padding:0 20px 40px}
-.frame{width:100%;aspect-ratio:var(--aspect,16/9);background:#000;border-radius:12px;overflow:hidden}
+.frame{width:min(100%,calc(78vh*var(--ar,1.7778)));aspect-ratio:var(--aspect,16/9);margin:0 auto;background:#000;border-radius:12px;overflow:hidden}
+.frame:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;border-radius:0}
 .frame iframe{width:100%;height:100%;border:0;display:block}
 .desc{color:var(--muted);margin-top:14px}

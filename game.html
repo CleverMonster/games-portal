@@ -13,7 +13,7 @@ fetch('games.json').then(r=>r.json()).then(list=>{
   document.getElementById('title').textContent=g.title;
   document.getElementById('desc').textContent=g.description||'';
   const f=document.getElementById('frame');
-  if(g.aspect)f.style.setProperty('--aspect',g.aspect);
+  if(g.aspect){f.style.setProperty('--aspect',g.aspect);const[a,b]=g.aspect.split('/').map(Number);f.style.setProperty('--ar',a/(b||1))}
   const i=document.createElement('iframe');
   i.src='games/'+g.slug+'/'+(g.entry||'index.html');
   i.allow='fullscreen; autoplay; gamepad; pointer-lock; accelerometer; gyroscope';
